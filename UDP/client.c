@@ -43,6 +43,12 @@ int main()
 
 	for( int i = 0 ; i < TIME_TEST_SAMPLE_SIZE ; i++ )
 	{
+		server_time[i] = 0;
+		client_time[i] = 0;
+	}
+
+	for( int i = 0 ; i < TIME_TEST_SAMPLE_SIZE ; i++ )
+	{
 		Client_operation( client, email );
 	}
 
@@ -52,7 +58,7 @@ int main()
 
 		suseconds_t communication_time_average = 0;
 
-		printf( "Tempo por cada iteração\n\n" );
+		printf( "\n\nTempo por cada iteração\n\n" );
 
 		printf(" Iter ClientTime(µs)  ServerTime(µs) CommunicationTime(µs)\n");
 
@@ -98,8 +104,28 @@ AnswerMsg* UDP_receive( Socket sock )
 	socklen_t msg_len;
 	struct sockaddr_in address;
 
-	while( recvfrom( sock.descriptor, msg, sizeof( AnswerMsg ), MSG_PEEK, ( struct sockaddr* ) &( address ), &msg_len ) != sizeof( AnswerMsg ) );
-	recvfrom( sock.descriptor, msg, sizeof( AnswerMsg ), 0, ( struct sockaddr* ) &( address ), &msg_len );
+	suseconds_t timeout = Client_getTime();
+	size_t msg_size;
+
+	do
+	{
+		do
+		{
+			if ( Client_getTime() - timeout >= 10000L )
+			{
+				free( msg );
+				return NULL;
+			}
+
+			msg_size = recvfrom( sock.descriptor, msg, sizeof( AnswerMsg ), MSG_PEEK, ( struct sockaddr* ) &( address ), &msg_len );
+		}
+		while( msg_size != sizeof( AnswerMsg ) );
+
+		recvfrom( sock.descriptor, msg, sizeof( AnswerMsg ), 0, ( struct sockaddr* ) &( address ), &msg_len );
+
+	}
+	while( msg->iteration != time_it );
+
 	end = Client_getTime();
 
 	return msg;
@@ -127,21 +153,27 @@ void Client_operation( Socket socket, char *email )
 	RequestMsg *request = malloc( sizeof( RequestMsg ) );
 
 	strcpy( request->email, email );
-	
+	request->iteration = time_it;
+
 	UDP_send( socket, request );
 	AnswerMsg *answer = UDP_receive( socket );
 
-	server_time[time_it] = answer->server_time;
-	client_time[time_it] =  end - start;
+	if ( answer != NULL )
+	{
+		//Profile_buffer_to_file( answer->img_path, answer->img, answer->img_size );
 
-	client_average += client_time[time_it];
-	server_average += server_time[time_it];
+		server_time[time_it] = answer->server_time;
+		client_time[time_it] =  end - start;
+
+		client_average += client_time[time_it];
+		server_average += server_time[time_it];
+
+		free( answer );
+	}
+
 	time_it++;
 
-	Profile_buffer_to_file( answer->img_path, answer->img, answer->img_size );
-
 	free( request );
-	free( answer );
 }
 
 //_________________________________________________________________________________________________
