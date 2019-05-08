@@ -101,7 +101,7 @@ Socket UDP_socket()
 AnswerMsg* UDP_receive( Socket sock )
 {
 	AnswerMsg *msg = malloc( sizeof( AnswerMsg ) );
-	socklen_t msg_len;
+	socklen_t address_len;
 	struct sockaddr_in address;
 
 	suseconds_t timeout = Client_getTime();
@@ -117,11 +117,11 @@ AnswerMsg* UDP_receive( Socket sock )
 				return NULL;
 			}
 
-			msg_size = recvfrom( sock.descriptor, msg, sizeof( AnswerMsg ), MSG_PEEK, ( struct sockaddr* ) &( address ), &msg_len );
+			msg_size = recvfrom( sock.descriptor, msg, sizeof( AnswerMsg ), MSG_PEEK, ( struct sockaddr* ) &( address ), &address_len );
 		}
 		while( msg_size != sizeof( AnswerMsg ) );
 
-		recvfrom( sock.descriptor, msg, sizeof( AnswerMsg ), 0, ( struct sockaddr* ) &( address ), &msg_len );
+		recvfrom( sock.descriptor, msg, sizeof( AnswerMsg ), 0, ( struct sockaddr* ) &( address ), &address_len );
 
 	}
 	while( msg->iteration != time_it );

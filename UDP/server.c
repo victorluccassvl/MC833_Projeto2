@@ -21,6 +21,7 @@ void Server_operation( Socket socket );
 
 FILE *database;
 suseconds_t start, end;
+int time_it;
 
 int main()
 {
@@ -70,12 +71,13 @@ void UDP_bind( Socket *sock, const char* IP, unsigned short int port )
 
 RequestMsg* UDP_receive( Socket sock, struct sockaddr_in *client_address )
 {
-	RequestMsg* msg = malloc( sizeof( RequestMsg ) );
 
+	RequestMsg *msg = malloc( sizeof( RequestMsg ) );
 	socklen_t address_len;
 
 	while( recvfrom( sock.descriptor, msg, sizeof( RequestMsg ), MSG_PEEK, ( struct sockaddr* ) client_address, &address_len ) != sizeof( RequestMsg ) );
-	recvfrom( sock.descriptor, msg, sizeof( RequestMsg ), MSG_PEEK, ( struct sockaddr* ) client_address, &address_len );
+	recvfrom( sock.descriptor, msg, sizeof( RequestMsg ), 0, ( struct sockaddr* ) client_address, &address_len );
+
 	start = Server_getTime();
 
 	return msg;
@@ -86,7 +88,6 @@ void UDP_send( Socket sock, AnswerMsg *msg, struct sockaddr_in *client_address )
 	end = Server_getTime();
 	msg->server_time = end - start;
 
-	printf("%lu", end - start );
 	sendto( sock.descriptor, msg, sizeof( AnswerMsg ), 0, ( struct sockaddr* ) client_address, sizeof( struct sockaddr_in ) );
 }
 
@@ -116,6 +117,9 @@ void Server_operation( Socket socket )
 	Profile_get_profile( database, request->email, &profile );
 
 	Profile_file_to_buffer( profile.img_path, answer->img, &( answer->img_size ) );
+
+	time_it = request->iteration;
+	answer->iteration = time_it;
 
 	strcpy( answer->name, profile.name );
 	strcat( answer->name, "_" );

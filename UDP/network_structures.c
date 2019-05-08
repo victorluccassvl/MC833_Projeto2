@@ -14,7 +14,7 @@
 #include <pthread.h>
 #include "profile_data.c"
 
-#define SERVER_PORT           20005
+#define SERVER_PORT           20002
 #define SERVER_IP             "177.220.84.39"
 #define HOST_NAME_MAX         200
 #define TIME_TEST_SAMPLE_SIZE 101
