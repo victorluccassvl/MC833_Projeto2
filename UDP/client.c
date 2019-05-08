@@ -160,7 +160,7 @@ void Client_operation( Socket socket, char *email )
 
 	if ( answer != NULL )
 	{
-		//Profile_buffer_to_file( answer->img_path, answer->img, answer->img_size );
+		Profile_buffer_to_file( answer->img_path, answer->img, answer->img_size );
 
 		server_time[time_it] = answer->server_time;
 		client_time[time_it] =  end - start;

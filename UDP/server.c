@@ -71,7 +71,6 @@ void UDP_bind( Socket *sock, const char* IP, unsigned short int port )
 
 RequestMsg* UDP_receive( Socket sock, struct sockaddr_in *client_address )
 {
-
 	RequestMsg *msg = malloc( sizeof( RequestMsg ) );
 	socklen_t address_len;
 
