@@ -110,7 +110,7 @@ void TCP_bind( Socket *sock )
 	sock->address.sin_port   = 0;
 	sock->address.sin_addr   = *( ( struct in_addr* ) host_entry->h_addr_list[0] );
 
-	bind( sock->descriptor, ( struct sockaddr* ) &( sock->address ), sizeof( sock->address ) );
+	bind( sock->descriptor, ( struct sockaddr* ) &( sock->address ), sizeof( struct sockaddr_in ) );
 
 	socklen_t addr_len = sizeof( sock->address );
 
@@ -135,7 +135,7 @@ Connection TCP_connection( Socket *sock, const char* IP, unsigned short int port
 	connection.client_address = sock->address;
 	connection.server_address = server_address;
 
-	if ( connect( connection.descriptor, ( struct sockaddr* ) &server_address, sizeof( server_address ) ) != 0 )
+	if ( connect( connection.descriptor, ( struct sockaddr* ) &server_address, sizeof( struct sockaddr_in ) ) != 0 )
 	{
 		perror( "Erro : " );
 		exit( 1 );

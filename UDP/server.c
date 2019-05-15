@@ -29,9 +29,12 @@ int main()
 
 	database = Profile_open( "database.bin" );
 
+	int pato =0;
+
 	while ( true )
 	{
 		Server_operation( server );
+		printf("oi %3d\n", pato++);
 	}
 
 	return 0;
@@ -74,9 +77,10 @@ RequestMsg* UDP_receive( Socket sock, struct sockaddr_in *client_address )
 	RequestMsg *msg = malloc( sizeof( RequestMsg ) );
 	socklen_t address_len;
 
+	printf("[recv");
 	while( recvfrom( sock.descriptor, msg, sizeof( RequestMsg ), MSG_PEEK, ( struct sockaddr* ) client_address, &address_len ) != sizeof( RequestMsg ) );
 	recvfrom( sock.descriptor, msg, sizeof( RequestMsg ), 0, ( struct sockaddr* ) client_address, &address_len );
-
+	printf("]\n");
 	start = Server_getTime();
 
 	return msg;
@@ -87,7 +91,9 @@ void UDP_send( Socket sock, AnswerMsg *msg, struct sockaddr_in *client_address )
 	end = Server_getTime();
 	msg->server_time = end - start;
 
+	printf("[send");
 	sendto( sock.descriptor, msg, sizeof( AnswerMsg ), 0, ( struct sockaddr* ) client_address, sizeof( struct sockaddr_in ) );
+	printf("]\n");
 }
 
 //_________________________________________________________________________________________________
